@@ -5,5 +5,5 @@ npm install
 ### Running server
 
 ```
-npm run dev
+npm run dev frontend & backend
 ```

@@ -2,10 +2,12 @@ import fs from "fs";
 import csv from "csv-parser";
 
 export interface TaxonomyNode {
+  id?: string;
   level: number;
   topic: string;
   subtopic: string;
   questionLabel: string;
+  parent?: TaxonomyNode;
   children?: TaxonomyNode[];
 }
 

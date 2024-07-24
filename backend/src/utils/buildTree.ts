@@ -26,6 +26,7 @@ export const buildTree = (nodes: TaxonomyNode[]): TaxonomyNode[] => {
     levelMap[level].push(node);
   });
 
-  console.log("rootNodes", rootNodes);
+  //console.log("rootNodes", JSON.stringify(rootNodes, null, 2));
+
   return rootNodes;
 };

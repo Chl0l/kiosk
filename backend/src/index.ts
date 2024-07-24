@@ -1,24 +1,41 @@
 import "reflect-metadata";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { HelloResolver } from "./resolvers/HelloResolver";
 import { getDataSource } from "./database";
 import { ApolloServer } from "@apollo/server";
 import { buildSchema } from "type-graphql";
+import { TaxonomyResolver } from "./resolvers/TaxonomyResolver";
+import { importCsvData } from "./utils/importCsvData";
 
-const PORT = 4000;
+const PORT = 5000;
 const startApolloServer = async () => {
   const schema = await buildSchema({
-    resolvers: [HelloResolver],
+    resolvers: [TaxonomyResolver],
     validate: true,
   });
   const server = new ApolloServer({ schema });
 
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: PORT },
-  });
+  try {
+    const { url } = await startStandaloneServer(server, {
+      listen: { port: PORT },
+    });
 
-  await getDataSource();
-  console.log(`🚀  Server ready at: ${url}`);
+    const dataSource = await getDataSource();
+    await importCsvData("./data/taxonomy.csv", dataSource);
+
+    console.log(`🚀 Server ready at: ${url}`);
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message.includes("EADDRINUSE")) {
+        console.error(
+          `Port ${PORT} is already in use. Please use a different port.`
+        );
+      } else {
+        console.error("Failed to start server:", err);
+      }
+    } else {
+      console.error("An unknown error occurred:", err);
+    }
+  }
 };
 
 startApolloServer();
