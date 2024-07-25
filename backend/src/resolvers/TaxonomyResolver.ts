@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg } from "type-graphql";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Taxonomy } from "../entities/Taxonomy";
 import {
   SubTopicTitle,
@@ -31,5 +31,13 @@ export class TaxonomyResolver {
     @Arg("subtopic") subtopic: string
   ): Promise<TaxonomyTree[]> {
     return Taxonomy.getQuestions(topic, subtopic);
+  }
+
+  @Mutation(() => Taxonomy)
+  async addAnswer(
+    @Arg("id") id: string,
+    @Arg("answer") answer: string
+  ): Promise<Taxonomy | null> {
+    return Taxonomy.addAnswer(id, answer);
   }
 }

@@ -9,7 +9,7 @@ import {
   GetSubTopicsByTopicQueryVariables,
 } from "@/gql/graphql";
 import { useState } from "react";
-import Accordion from "../components/accordion";
+import Accordion from "../components/Accordion";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,42 +37,49 @@ const GET_QUESTIONS = gql`
       questionLabel
       subtopic
       topic
+      answer
       children {
         id
         level
         questionLabel
         subtopic
         topic
+        answer
         children {
           id
           level
           questionLabel
           subtopic
           topic
+          answer
           children {
             id
             level
             questionLabel
             subtopic
             topic
+            answer
             children {
               id
               level
               questionLabel
               subtopic
               topic
+              answer
               children {
                 id
                 level
                 questionLabel
                 subtopic
                 topic
+                answer
                 children {
                   id
                   level
                   questionLabel
                   subtopic
                   topic
+                  answer
                 }
               }
             }
@@ -112,7 +119,7 @@ export default function Home() {
 
   const [selectedSubTopic, setSelectedSubTopic] = useState<string>("");
 
-  const { data: questionsData } = useQuery<
+  const { data: questionsData, refetch } = useQuery<
     GetQuestionsQuery,
     GetQuestionsQueryVariables
   >(GET_QUESTIONS, {
@@ -132,21 +139,15 @@ export default function Home() {
     setSelectedSubTopic(subtopic);
   };
 
-  const handleAnswerChange = (questionId: string, value: string) => {
-    console.log(`Answer for question ${questionId}: ${value}`);
-  };
-
   return (
     <main
       className={`flex min-h-screen flex-col items-center p-24 ${inter.className}`}
     >
       <form className="mb-4">
-        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Select a topic
-        </label>
+        <label className="form-label">Select a topic</label>
         <select
           id="topics"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="form-select"
           value={selectedTopic}
           onChange={handleTopicChange}
         >
@@ -158,12 +159,10 @@ export default function Home() {
           ))}
         </select>
 
-        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-4">
-          Select a subtopic
-        </label>
+        <label className="form-label mt-4">Select a subtopic</label>
         <select
           id="subtopics"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="form-select"
           disabled={!selectedTopic}
           value={selectedSubTopic}
           onChange={handleSubTopicChange}
@@ -185,7 +184,7 @@ export default function Home() {
               <Accordion
                 key={question.id}
                 question={question}
-                onAnswerChange={handleAnswerChange}
+                refetch={refetch}
               />
             ))}
         </div>

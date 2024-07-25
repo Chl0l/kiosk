@@ -16,6 +16,9 @@ export class CreateOrUpdateTaxonomy {
 
   @Field()
   questionLabel!: string;
+
+  @Field({ nullable: true })
+  answer?: string;
 }
 
 @ObjectType()
@@ -46,6 +49,9 @@ export class TaxonomyTree {
 
   @Field()
   questionLabel!: string;
+
+  @Field({ nullable: true })
+  answer?: string;
 
   @Field(() => TaxonomyTree, { nullable: true })
   parent?: TaxonomyTree;

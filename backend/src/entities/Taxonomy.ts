@@ -39,6 +39,10 @@ export class Taxonomy extends BaseEntity {
   @Field()
   questionLabel!: string;
 
+  @Column({ type: "text", nullable: true })
+  @Field({ nullable: true })
+  answer?: string;
+
   @TreeParent()
   @Field(() => Taxonomy, { nullable: true })
   parent?: Taxonomy | null;
@@ -55,6 +59,7 @@ export class Taxonomy extends BaseEntity {
       this.subtopic = taxonomy.subtopic;
       this.level = taxonomy.level;
       this.questionLabel = taxonomy.questionLabel;
+      this.answer = taxonomy.answer;
     }
   }
 
@@ -103,6 +108,7 @@ export class Taxonomy extends BaseEntity {
       .orderBy("taxonomy.level", "ASC")
       .getMany();
 
+    // Trying using buildTree method
     // const nodes: TaxonomyNode[] = questions.map((q) => ({
     //   id: q.id,
     //   level: q.level,
@@ -124,6 +130,7 @@ export class Taxonomy extends BaseEntity {
         subtopic: q.subtopic,
         level: q.level,
         questionLabel: q.questionLabel,
+        answer: q.answer,
         parent: q.parent
           ? {
               id: q.parent.id!,
@@ -154,7 +161,16 @@ export class Taxonomy extends BaseEntity {
 
     return roots;
   }
-}
-function buildTreeFromDb(questions: Taxonomy[]) {
-  throw new Error("Function not implemented.");
+
+  static async addAnswer(id: string, answer: string): Promise<Taxonomy | null> {
+    const taxonomy = await Taxonomy.findOne({
+      where: { id },
+    });
+    if (!taxonomy) {
+      throw new Error("Taxonomy not found");
+    }
+    taxonomy.answer = answer;
+    await taxonomy.save();
+    return taxonomy;
+  }
 }
