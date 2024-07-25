@@ -7,6 +7,7 @@ export interface TaxonomyNode {
   topic: string;
   subtopic: string;
   questionLabel: string;
+  answer?: string;
   parent?: TaxonomyNode;
   children?: TaxonomyNode[];
 }
