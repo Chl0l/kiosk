@@ -14,6 +14,8 @@ import {
   TaxonomyTree,
 } from "./Taxonomy.args";
 import { TopicTitle } from "./Taxonomy.args";
+import { buildTree } from "../utils/buildTree";
+import { TaxonomyNode } from "../utils/parseCsv";
 
 @ObjectType()
 @Entity()
@@ -108,58 +110,37 @@ export class Taxonomy extends BaseEntity {
       .orderBy("taxonomy.level", "ASC")
       .getMany();
 
-    // Trying using buildTree method
-    // const nodes: TaxonomyNode[] = questions.map((q) => ({
-    //   id: q.id,
-    //   level: q.level,
-    //   topic: q.topic,
-    //   subtopic: q.subtopic,
-    //   questionLabel: q.questionLabel,
-    //   // Note: Parent and children are not used here as buildTree handles it
-    // }));
-
-    // const tree = buildTree(nodes);
-
-    // return tree;
-
-    const questionMap = new Map<string, TaxonomyTree>();
-    questions.forEach((q) => {
-      questionMap.set(q.id!, {
-        id: q.id!,
-        topic: q.topic,
-        subtopic: q.subtopic,
-        level: q.level,
-        questionLabel: q.questionLabel,
-        answer: q.answer,
-        parent: q.parent
-          ? {
-              id: q.parent.id!,
-              topic: q.parent.topic!,
-              subtopic: q.parent.subtopic!,
-              level: q.parent.level,
-              questionLabel: q.parent.questionLabel,
-            }
-          : undefined,
-        children: [],
-      });
-    });
-
-    const roots: TaxonomyTree[] = [];
-    questionMap.forEach((q) => {
-      if (q.parent) {
-        const parent = questionMap.get(q.parent.id!);
-        if (parent) {
-          if (!parent.children) {
-            parent.children = [];
+    const nodes: TaxonomyNode[] = questions.map((q) => ({
+      id: q.id,
+      level: q.level,
+      topic: q.topic,
+      subtopic: q.subtopic,
+      questionLabel: q.questionLabel,
+      answer: q.answer,
+      parent: q.parent
+        ? {
+            id: q.parent.id!,
+            level: q.parent.level,
+            topic: q.parent.topic,
+            subtopic: q.parent.subtopic,
+            questionLabel: q.parent.questionLabel,
           }
-          parent.children.push(q);
-        }
-      } else {
-        roots.push(q);
-      }
-    });
+        : undefined,
+      children: q.children
+        ? q.children.map((child) => ({
+            id: child.id,
+            level: child.level,
+            topic: child.topic,
+            subtopic: child.subtopic,
+            questionLabel: child.questionLabel,
+            answer: q.answer,
+          }))
+        : [],
+    }));
 
-    return roots;
+    const tree = buildTree(nodes);
+
+    return tree;
   }
 
   static async addAnswer(id: string, answer: string): Promise<Taxonomy | null> {

@@ -19,7 +19,14 @@ export const importCsvData = async (
   const data: CsvRow[] = [];
   fs.createReadStream(filePath)
     .pipe(csvParser())
-    .on("data", (row) => data.push(row as CsvRow))
+    .on("data", (row) => {
+      data.push({
+        topic: row.topic,
+        subtopic: row.subtopic,
+        level: parseInt(row.level, 10),
+        questionLabel: row["question label"],
+      });
+    })
     .on("end", async () => {
       const existingRecords = await repository.find();
 

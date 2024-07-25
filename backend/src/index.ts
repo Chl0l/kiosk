@@ -5,8 +5,11 @@ import { ApolloServer } from "@apollo/server";
 import { buildSchema } from "type-graphql";
 import { TaxonomyResolver } from "./resolvers/TaxonomyResolver";
 import { importCsvData } from "./utils/importCsvData";
+import dotenv from "dotenv";
 
-const PORT = 5000;
+dotenv.config();
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 const startApolloServer = async () => {
   const schema = await buildSchema({
     resolvers: [TaxonomyResolver],
