@@ -17,7 +17,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@apollo/server": "^4.10.4",
+    "@apollo/server": "^4.9.5",
     "class-validator": "^0.14.1",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
