@@ -4,10 +4,25 @@ import csvParser from "csv-parser";
 import { Taxonomy } from "../entities/Taxonomy";
 
 interface CsvRow {
+  id: string;
+  parentId?: string;
   topic: string;
   subtopic: string;
   level: number;
   questionLabel: string;
+  answer?: string;
+}
+
+function transformRow(row: any): CsvRow {
+  return {
+    id: row["id"],
+    parentId: row["parentId"],
+    topic: row["topic"],
+    subtopic: row["subtopic"],
+    level: parseInt(row["level"], 10),
+    questionLabel: row["question label"],
+    answer: row["answer"],
+  };
 }
 
 export const importCsvData = async (
@@ -19,13 +34,9 @@ export const importCsvData = async (
   const data: CsvRow[] = [];
   fs.createReadStream(filePath)
     .pipe(csvParser())
-    .on("data", (row) => {
-      data.push({
-        topic: row.topic,
-        subtopic: row.subtopic,
-        level: parseInt(row.level, 10),
-        questionLabel: row["question label"],
-      });
+    .on("data", (row: any) => {
+      const transformedRow = transformRow(row);
+      data.push(transformedRow);
     })
     .on("end", async () => {
       const existingRecords = await repository.find();

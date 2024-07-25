@@ -21,7 +21,7 @@ import { TaxonomyNode } from "../utils/parseCsv";
 @Entity()
 @Tree("closure-table")
 export class Taxonomy extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn()
   @Field(() => ID)
   id!: string;
 
@@ -107,40 +107,37 @@ export class Taxonomy extends BaseEntity {
       .leftJoinAndSelect("taxonomy.children", "children")
       .where("taxonomy.topic = :topic", { topic })
       .andWhere("taxonomy.subtopic = :subtopic", { subtopic })
-      .orderBy("taxonomy.level", "ASC")
+      .orderBy("taxonomy.id", "ASC")
       .getMany();
 
-    const nodes: TaxonomyNode[] = questions.map((q) => ({
-      id: q.id,
-      level: q.level,
-      topic: q.topic,
-      subtopic: q.subtopic,
-      questionLabel: q.questionLabel,
-      answer: q.answer,
-      parent: q.parent
+    const nodes: TaxonomyNode[] = questions.map((question) => {
+      const parentNode: TaxonomyNode | undefined = question.parent
         ? {
-            id: q.parent.id!,
-            level: q.parent.level,
-            topic: q.parent.topic,
-            subtopic: q.parent.subtopic,
-            questionLabel: q.parent.questionLabel,
+            id: question.parent.id,
+            level: question.parent.level,
+            topic: question.parent.topic,
+            subtopic: question.parent.subtopic,
+            questionLabel: question.parent.questionLabel,
+            answer: question.parent.answer,
+            children: [],
           }
-        : undefined,
-      children: q.children
-        ? q.children.map((child) => ({
-            id: child.id,
-            level: child.level,
-            topic: child.topic,
-            subtopic: child.subtopic,
-            questionLabel: child.questionLabel,
-            answer: q.answer,
-          }))
-        : [],
-    }));
+        : undefined;
 
-    const tree = buildTree(nodes);
+      return {
+        id: question.id,
+        level: question.level,
+        topic: question.topic,
+        subtopic: question.subtopic,
+        questionLabel: question.questionLabel,
+        answer: question.answer,
+        parent: parentNode,
+        children: [],
+      };
+    });
 
-    return tree;
+    const rootNodes = buildTree(nodes);
+
+    return rootNodes;
   }
 
   static async addAnswer(id: string, answer: string): Promise<Taxonomy | null> {
